@@ -1,0 +1,158 @@
+<html>
+<head>
+ <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
+
+</head>
+<script>
+var myApp = angular.module('myApp',[]);
+
+
+myApp.controller("MyCtrl",function($scope, $http,$window) {
+	$scope.stores = [];
+	  $scope.storeForm = {
+			  gender:"",
+				  product:"",
+				  price:"",
+				  brand:"",
+					  quantity:"",
+					  total:""
+            	  
+          };
+    $scope.data = [ {"gender": "Male",
+   "products": [
+      { "product": "Shirts", "brands": [{name:"Lee-Cooper",cost:1000},{name:"Peter-England",cost:1200} ]},
+      { "product": "Pants", "brands": [{name:"Denim",cost:1500},{name: "Ram-Raj",cost:1800}]}
+  ]}, 
+  {"gender": "Female",
+   "products": [ 
+      { "product": "Chudidhar", "brands": [{name:"XYZ",cost:800}, {name:"ABC",cost:300}]},
+      { "product": "Sarees", "brands": [{name:"Kanchipuram",cost:2000},{name: "Dharmavaram",cost:2500}]}
+  ]},
+  {"gender": "Kids",
+   "products": [
+      { "product": "Shorts", "brands": [{name:"abc",cost:350}, {name:"xyz",cost:500}]},
+      { "product": "Forks",       "brands": [{name:"def",cost:365},{name: "uvw",cost:400}]}
+  ]}
+];
+
+    $scope.submit = function()    {
+	alert("inside submit");
+    	alert("inside post method" );
+        //Id is absent in form data, it is create new country operation
+       alert("store >>>>"+$scope.storeForm);
+       addValue();
+        $http({
+            method : "POST",
+            url : 'rest/store',
+            data : angular.toJson($scope.storeForm),
+            headers : {
+                'Content-Type' : 'application/json'
+            }
+        }).then(_success, _error );
+        
+        };  
+
+
+        // In case of edit, populate form fields and assign form.id with country id
+          function addValue() {
+             
+	           alert("inside add>>"+$scope.genderField.gender);
+               $scope.storeForm.gender=$scope.genderField.gender;
+            	$scope.storeForm.product=$scope.productField.product;
+            	$scope.storeForm.price=$scope.productField.price;
+            	$scope.storeForm.brand=$scope.productField.brand;
+            	$scope.storeForm.quantity=$scope.productField.quantity;
+         		$scope.storeForm.total=$scope.productField.total;
+           }; 
+         /* $scope.submit = function() {
+        	  addValue();
+      	  $window.alert("inside _refreshCountryData");
+            $http({
+                method : 'POST',
+                url : 'rest/store',
+                data : angular.toJson($scope.storeForm),
+                headers : {
+                    'Content-Type' : 'application/json'
+                }
+            }).then(function successCallback(response) {
+                $window.alert("data"+ response);
+                alert("inside success");
+                alert(response);
+                 alert("data"+ response);
+                 $scope.stores = response.data;
+                $scope._refresh();
+                 
+            }, function errorCallback(response) {
+            	 $window.alert("Error" +response.statusText);
+                console.log(response.statusText);
+            });
+      	
+      };
+ */
+        function _success(response) {
+            
+           alert("inside success");
+           alert(response);
+            alert("data"+ response);
+            $scope.stores = response.data;
+            $scope._refresh();
+            
+            
+        }
+        function _refresh()
+        {
+        	$http({
+                method : "GET",
+                url : 'rest/store/',
+                data : angular.toJson($scope.data),
+                headers : {
+                    'Content-Type' : 'application/json'
+                }
+            }).then( _success, _error );
+
+            };
+        function _error(response) {
+            console.log(response.statusText);
+        }
+       
+
+        
+});
+</script>
+<body ng-app="myApp">
+<h3>Store</h3>
+<hr/>
+<div ng-controller="MyCtrl">
+
+<form ng-submit="submit()">
+gender: <select ng-model="genderField" ng-options="c.gender for c in data" ng-change="changegender()">
+    <option value="">-- choose gender --</option>
+</select> {{genderField.gender}}<br/>
+product: <select ng-model="productField" required ng-options="c.product for c in genderField.products" ng-change="changeproduct()">
+    <option value="">-- choose product --</option>
+</select> {{productField.product}}<br/>
+brand: <select ng-model="brandField" ng-options="c.name for c in productField.brands">
+    <option value="">-- choose Brand --</option>
+</select> {{brandField.name}}<br/>
+Price {{brandField.cost}}
+  Quantity<input type="number" ng-model="storeForm.quantity" ><br>
+  total {{storeForm.quantity*brandField.cost}}<br>
+  <input type="submit" value="Submit ">
+</form>
+<h1> Products</h1>
+<table>
+<tr ng-repeat="x in stores">
+<td >{{x.gender}}</td>
+<td >{{x.product}}</td>
+<td >{{x.brand}}</td>
+<td >{{x.price}}</td>
+<td >{{x.quantity}}</td>
+<td >{{x.total}}</td>
+
+</tr>
+
+</table>
+</div>
+
+</body>
+</html>
